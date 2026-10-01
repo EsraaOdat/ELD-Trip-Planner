@@ -1,8 +1,9 @@
-import { STATUS_LABEL, clock, dayLabel, duration, miles } from '../format'
+import { useI18n } from '../i18n'
 import type { TripEvent, TripPlan } from '../types'
 
 /** The trip schedule, grouped by the day each activity starts on. */
 export default function Timeline({ plan }: { plan: TripPlan }) {
+  const { t, duration, miles, clock, dayLabel } = useI18n()
   const days = new Map<string, TripEvent[]>()
   for (const event of plan.timeline) {
     const date = event.start.slice(0, 10)
@@ -25,13 +26,14 @@ export default function Timeline({ plan }: { plan: TripPlan }) {
                   <span className="event-dot" aria-hidden="true" />
                   <div>
                     <strong>
-                      {event.kind === 'drive' ? `Drive ${miles(event.miles)}` : event.note}
+                      {t(`stop.${event.kind}`, { miles: miles(event.miles) })}
                       <span className="event-duration">{duration(event.minutes)}</span>
                     </strong>
                     <span className="event-place">
-                      {event.kind === 'drive' && next ? `${event.location} → ${next.location}` : event.location}
+                      {/* City names are English, so keep "A → B" reading left to right. */}
+                      <bdi dir="ltr">{event.kind === 'drive' && next ? `${event.location} → ${next.location}` : event.location}</bdi>
                       {' · '}
-                      {STATUS_LABEL[event.status]}
+                      {t(`status.${event.status}`)}
                     </span>
                   </div>
                 </li>

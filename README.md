@@ -10,6 +10,7 @@ daily log sheets, drawn and filled out automatically.
 - A map of the route with every stop: pickup, drop-off, fuel, 30-minute breaks, 10-hour rests and 34-hour restarts.
 - A trip schedule with times, locations and distances.
 - One daily log sheet per calendar day, with the duty-status line drawn on the grid, totals, remarks and the 70-hour recap. Sheets can be printed.
+- English and Arabic (right-to-left) interface, with light and dark themes. The choice is remembered. The log sheet itself stays in English, as it is a US DOT form.
 
 ## Stack
 

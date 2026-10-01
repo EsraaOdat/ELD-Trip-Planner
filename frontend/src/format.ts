@@ -1,11 +1,4 @@
-import type { DutyStatus, EventKind } from './types'
-
-export const STATUS_LABEL: Record<DutyStatus, string> = {
-  off_duty: 'Off duty',
-  sleeper: 'Sleeper berth',
-  driving: 'Driving',
-  on_duty: 'On duty (not driving)',
-}
+import type { EventKind } from './types'
 
 /** Colour and map-marker letter for each kind of stop. */
 export const KIND_STYLE: Record<EventKind | 'start', { color: string; glyph: string }> = {
@@ -22,32 +15,9 @@ export const KIND_STYLE: Record<EventKind | 'start', { color: string; glyph: str
   post: { color: '#64748b', glyph: '' },
 }
 
-/** 135 -> "2h 15m" */
-export function duration(minutes: number): string {
-  const hours = Math.floor(minutes / 60)
-  const rest = minutes % 60
-  if (!hours) return `${rest}m`
-  return rest ? `${hours}h ${rest}m` : `${hours}h`
-}
-
 /** Minutes as decimal hours the way a paper log totals them: 465 -> "7.75" */
 export function decimalHours(minutes: number): string {
   return String(Math.round((minutes / 60) * 100) / 100)
-}
-
-/** "2026-10-02T14:15" -> "2:15 PM" */
-export function clock(iso: string): string {
-  return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-}
-
-/** "2026-10-02" or a full ISO time -> "Fri, Oct 2" */
-export function dayLabel(iso: string): string {
-  const date = new Date(iso.length === 10 ? `${iso}T00:00` : iso)
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-}
-
-export function miles(value: number): string {
-  return `${value.toLocaleString('en-US')} mi`
 }
 
 /** The next quarter hour from now, formatted for <input type="datetime-local">. */

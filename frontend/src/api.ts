@@ -21,7 +21,7 @@ function errorMessage(body: unknown): string {
       return `${FIELD_NAMES[field] ?? field}: ${Array.isArray(text) ? text[0] : text}`
     }
   }
-  return 'Something went wrong. Please try again.'
+  return 'error.unknown'
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -30,7 +30,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     response = await fetch(`${API_URL}${path}`, init)
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error
-    throw new Error('Cannot reach the server. Check your connection and try again.')
+    throw new Error('error.network') // a translation key
   }
   const body = await response.json().catch(() => null)
   if (!response.ok) throw new Error(errorMessage(body))

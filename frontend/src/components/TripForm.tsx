@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { KIND_STYLE, nextQuarterHour } from '../format'
+import { useI18n } from '../i18n'
 import type { Place, SheetDetails, TripRequest } from '../types'
 import LocationInput from './LocationInput'
 
@@ -17,15 +18,16 @@ const EXAMPLE: Record<'current' | 'pickup' | 'dropoff', Place> = {
   dropoff: { label: 'Los Angeles, CA', lat: 34.0537, lng: -118.2428 },
 }
 
-const DETAIL_FIELDS: { key: keyof SheetDetails; label: string; placeholder: string }[] = [
-  { key: 'driver', label: 'Driver name', placeholder: 'John E. Doe' },
-  { key: 'carrier', label: 'Carrier name', placeholder: "John Doe's Transportation" },
-  { key: 'office', label: 'Main office address', placeholder: 'Washington, D.C.' },
-  { key: 'vehicle', label: 'Truck / trailer numbers', placeholder: '123, 20544' },
-  { key: 'shipment', label: 'Shipping document or commodity', placeholder: '101601' },
+const DETAIL_FIELDS: { key: keyof SheetDetails; placeholder: string }[] = [
+  { key: 'driver', placeholder: 'John E. Doe' },
+  { key: 'carrier', placeholder: "John Doe's Transportation" },
+  { key: 'office', placeholder: 'Washington, D.C.' },
+  { key: 'vehicle', placeholder: '123, 20544' },
+  { key: 'shipment', placeholder: '101601' },
 ]
 
 export default function TripForm({ loading, details, onDetailsChange, onSubmit }: Props) {
+  const { t } = useI18n()
   const [current, setCurrent] = useState<Place>({ label: '' })
   const [pickup, setPickup] = useState<Place>({ label: '' })
   const [dropoff, setDropoff] = useState<Place>({ label: '' })
@@ -55,32 +57,32 @@ export default function TripForm({ loading, details, onDetailsChange, onSubmit }
   return (
     <form className="card trip-form" onSubmit={submit}>
       <div className="card-head">
-        <h2>Trip details</h2>
+        <h2>{t('form.title')}</h2>
         <button type="button" className="link" onClick={fillExample}>
-          Try an example
+          {t('form.example')}
         </button>
       </div>
 
       <div className="route-fields">
         <LocationInput
-          label="Current location"
-          placeholder="City or address"
+          label={t('form.current')}
+          placeholder={t('form.placeholder')}
           marker={KIND_STYLE.start.glyph}
           markerColor={KIND_STYLE.start.color}
           value={current}
           onChange={setCurrent}
         />
         <LocationInput
-          label="Pickup location"
-          placeholder="City or address"
+          label={t('form.pickup')}
+          placeholder={t('form.placeholder')}
           marker={KIND_STYLE.pickup.glyph}
           markerColor={KIND_STYLE.pickup.color}
           value={pickup}
           onChange={setPickup}
         />
         <LocationInput
-          label="Dropoff location"
-          placeholder="City or address"
+          label={t('form.dropoff')}
+          placeholder={t('form.placeholder')}
           marker={KIND_STYLE.dropoff.glyph}
           markerColor={KIND_STYLE.dropoff.color}
           value={dropoff}
@@ -89,7 +91,7 @@ export default function TripForm({ loading, details, onDetailsChange, onSubmit }
       </div>
 
       <div className="field">
-        <label htmlFor="cycle-used">Current cycle used (hrs)</label>
+        <label htmlFor="cycle-used">{t('form.cycle')}</label>
         <div className="cycle-row">
           <input
             id="cycle-used"
@@ -107,15 +109,15 @@ export default function TripForm({ loading, details, onDetailsChange, onSubmit }
             max={70}
             step={0.25}
             value={cycleHours}
-            aria-label="Current cycle used"
+            aria-label={t('form.cycle')}
             onChange={(event) => setCycleUsed(event.target.value)}
           />
         </div>
-        <p className="hint">{70 - cycleHours} of 70 hours left in the 8-day cycle</p>
+        <p className="hint">{t('form.cycleLeft', { hours: 70 - cycleHours })}</p>
       </div>
 
       <div className="field">
-        <label htmlFor="start-time">Start time</label>
+        <label htmlFor="start-time">{t('form.start')}</label>
         <input
           id="start-time"
           type="datetime-local"
@@ -124,14 +126,14 @@ export default function TripForm({ loading, details, onDetailsChange, onSubmit }
           value={startTime}
           onChange={(event) => setStartTime(event.target.value)}
         />
-        <p className="hint">Home terminal time. The driver starts fully rested.</p>
+        <p className="hint">{t('form.startHint')}</p>
       </div>
 
       <details className="sheet-details">
-        <summary>Log sheet details (optional)</summary>
-        {DETAIL_FIELDS.map(({ key, label, placeholder }) => (
+        <summary>{t('form.details')}</summary>
+        {DETAIL_FIELDS.map(({ key, placeholder }) => (
           <div className="field" key={key}>
-            <label htmlFor={`detail-${key}`}>{label}</label>
+            <label htmlFor={`detail-${key}`}>{t(`form.${key}`)}</label>
             <input
               id={`detail-${key}`}
               type="text"
@@ -144,13 +146,13 @@ export default function TripForm({ loading, details, onDetailsChange, onSubmit }
       </details>
 
       <button type="submit" className="primary" disabled={loading}>
-        {loading ? 'Planning trip…' : 'Plan trip'}
+        {loading ? t('form.loading') : t('form.submit')}
       </button>
 
       <ul className="assumptions">
-        <li>Property-carrying driver, 70 hrs / 8 days</li>
-        <li>Fuel at least every 1,000 miles</li>
-        <li>1 hour each for pickup and drop-off</li>
+        <li>{t('form.assume1')}</li>
+        <li>{t('form.assume2')}</li>
+        <li>{t('form.assume3')}</li>
       </ul>
     </form>
   )

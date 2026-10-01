@@ -2,7 +2,8 @@ import { useEffect } from 'react'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
-import { KIND_STYLE, clock, dayLabel, duration } from '../format'
+import { KIND_STYLE } from '../format'
+import { useI18n } from '../i18n'
 import type { TripPlan } from '../types'
 
 const US_CENTER: [number, number] = [39.5, -98.35]
@@ -30,6 +31,7 @@ function FitRoute({ plan }: { plan: TripPlan }) {
 }
 
 export default function RouteMap({ plan }: { plan: TripPlan | null }) {
+  const { t, clock, dayLabel, duration } = useI18n()
   return (
     <MapContainer center={US_CENTER} zoom={4} scrollWheelZoom className="map">
       <TileLayer
@@ -45,7 +47,7 @@ export default function RouteMap({ plan }: { plan: TripPlan | null }) {
 
           <Marker position={[plan.locations.current.lat, plan.locations.current.lng]} icon={pin('start', true)}>
             <Popup>
-              <strong>Start</strong>
+              <strong>{t('stop.start')}</strong>
               <br />
               {plan.locations.current.label}
               <br />
@@ -61,9 +63,9 @@ export default function RouteMap({ plan }: { plan: TripPlan | null }) {
               zIndexOffset={stop.kind === 'pickup' || stop.kind === 'dropoff' ? 500 : 0}
             >
               <Popup>
-                <strong>{stop.note}</strong> · {duration(stop.minutes)}
+                <strong>{t(`stop.${stop.kind}`)}</strong> · {duration(stop.minutes)}
                 <br />
-                {stop.location} · mile {stop.mile_marker.toLocaleString('en-US')}
+                {stop.location} · {t('map.mile', { n: stop.mile_marker.toLocaleString('en-US') })}
                 <br />
                 {dayLabel(stop.start)}, {clock(stop.start)} – {clock(stop.end)}
               </Popup>

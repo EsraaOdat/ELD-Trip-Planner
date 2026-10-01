@@ -5,20 +5,15 @@ import RouteMap from './components/RouteMap'
 import Summary from './components/Summary'
 import Timeline from './components/Timeline'
 import TripForm from './components/TripForm'
-import { KIND_STYLE, dayLabel, duration, miles } from './format'
+import { KIND_STYLE } from './format'
+import { useI18n, useTheme } from './i18n'
 import type { SheetDetails, TripPlan, TripRequest } from './types'
 
-const LEGEND = [
-  ['start', 'Start'],
-  ['pickup', 'Pickup'],
-  ['dropoff', 'Drop-off'],
-  ['fuel', 'Fuel'],
-  ['break', '30-min break'],
-  ['rest', '10-hr rest'],
-  ['restart', '34-hr restart'],
-] as const
+const LEGEND = ['start', 'pickup', 'dropoff', 'fuel', 'break', 'rest', 'restart'] as const
 
 export default function App() {
+  const { t, toggleLang, dayLabel, duration, miles } = useI18n()
+  const { theme, toggleTheme } = useTheme()
   const [plan, setPlan] = useState<TripPlan | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -34,7 +29,7 @@ export default function App() {
       setActiveDay(0)
       results.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : 'Something went wrong.')
+      setError(failure instanceof Error ? failure.message : 'error.unknown')
     } finally {
       setLoading(false)
     }
@@ -49,8 +44,31 @@ export default function App() {
             <path d="M5 11h5v10h5v-6h6v-5h6" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           <div>
-            <h1>ELD Trip Planner</h1>
-            <p>HOS-compliant routes and daily logs for property-carrying drivers</p>
+            <h1>{t('app.title')}</h1>
+            <p>{t('app.subtitle')}</p>
+          </div>
+          <div className="topbar-actions">
+            <button type="button" className="topbar-button" onClick={toggleLang}>
+              {t('app.switchLanguage')}
+            </button>
+            <button
+              type="button"
+              className="topbar-button icon"
+              onClick={toggleTheme}
+              aria-label={t(theme === 'dark' ? 'app.lightMode' : 'app.darkMode')}
+              title={t(theme === 'dark' ? 'app.lightMode' : 'app.darkMode')}
+            >
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                {theme === 'dark' ? (
+                  <>
+                    <circle cx="12" cy="12" r="4" />
+                    <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                  </>
+                ) : (
+                  <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
       </header>
@@ -60,7 +78,7 @@ export default function App() {
           <TripForm loading={loading} details={details} onDetailsChange={setDetails} onSubmit={submit} />
           {error && (
             <p className="error" role="alert">
-              {error}
+              {t(error)}
             </p>
           )}
         </aside>
@@ -73,33 +91,33 @@ export default function App() {
               <RouteMap plan={plan} />
               {!plan && !loading && (
                 <div className="map-empty">
-                  <strong>Enter a trip to see the route</strong>
-                  <span>You get the route with every required stop, and a filled-out log sheet for each day.</span>
+                  <strong>{t('map.emptyTitle')}</strong>
+                  <span>{t('map.emptyText')}</span>
                 </div>
               )}
-              {loading && <div className="map-empty">Calculating route and hours of service…</div>}
+              {loading && <div className="map-empty">{t('map.loading')}</div>}
             </div>
             {plan && (
               <>
                 <ul className="legend">
-                  {LEGEND.map(([kind, label]) => (
+                  {LEGEND.map((kind) => (
                     <li key={kind}>
                       <span className="map-pin small" style={{ background: KIND_STYLE[kind].color }}>
                         {KIND_STYLE[kind].glyph}
                       </span>
-                      {label}
+                      {t(`stop.${kind}`)}
                     </li>
                   ))}
                 </ul>
                 <div className="legs">
-                  {plan.legs.map((leg) => (
+                  {plan.legs.map((leg, index) => (
                     <div key={leg.name} className="leg">
-                      <strong>{leg.name}</strong>
+                      <strong>{t(`leg.${index}`)}</strong>
                       <span>
-                        {miles(leg.miles)} · {duration(leg.driving_minutes)} driving
+                        {miles(leg.miles)} · {t('map.driving', { time: duration(leg.driving_minutes) })}
                       </span>
                       {leg.directions.length > 0 && (
-                        <p>{[...new Set(leg.directions.map((step) => step.road))].slice(0, 10).join(' → ')}</p>
+                        <p dir="ltr">{[...new Set(leg.directions.map((step) => step.road))].slice(0, 10).join(' → ')}</p>
                       )}
                     </div>
                   ))}
@@ -112,20 +130,20 @@ export default function App() {
             <>
               <section className="card">
                 <div className="card-head">
-                  <h2>Trip schedule</h2>
-                  <span className="muted">Stops and rests required by the hours-of-service rules</span>
+                  <h2>{t('schedule.title')}</h2>
+                  <span className="muted">{t('schedule.subtitle')}</span>
                 </div>
                 <Timeline plan={plan} />
               </section>
 
               <section className="card logs">
                 <div className="card-head">
-                  <h2>Daily log sheets</h2>
+                  <h2>{t('logs.title')}</h2>
                   <button type="button" className="secondary" onClick={() => window.print()}>
-                    Print all {plan.days.length} sheets
+                    {t('logs.print', { n: plan.days.length })}
                   </button>
                 </div>
-                <div className="tabs" role="tablist" aria-label="Log sheet day">
+                <div className="tabs" role="tablist" aria-label={t('logs.tabs')}>
                   {plan.days.map((day, index) => (
                     <button
                       key={day.date}
@@ -135,14 +153,14 @@ export default function App() {
                       className={index === activeDay ? 'active' : undefined}
                       onClick={() => setActiveDay(index)}
                     >
-                      <span>Day {index + 1}</span>
+                      <span>{t('logs.day', { n: index + 1 })}</span>
                       {dayLabel(day.date)}
                     </button>
                   ))}
                 </div>
                 <div className="sheets">
                   {plan.days.map((day, index) => (
-                    <div key={day.date} className={`sheet${index === activeDay ? ' active' : ''}`}>
+                    <div key={day.date} dir="ltr" className={`sheet${index === activeDay ? ' active' : ''}`}>
                       <LogSheet day={day} details={details} />
                     </div>
                   ))}

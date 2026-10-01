@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { searchPlaces } from '../api'
+import { useI18n } from '../i18n'
 import type { Place } from '../types'
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
 /** Text field with address suggestions. Free text is also accepted. */
 export default function LocationInput({ label, placeholder, marker, markerColor, value, onChange }: Props) {
   const id = useId()
+  const { t } = useI18n()
   const [suggestions, setSuggestions] = useState<Required<Place>[]>([])
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
@@ -89,7 +91,7 @@ export default function LocationInput({ label, placeholder, marker, markerColor,
             }
           }}
         />
-        {value.lat !== undefined && <span className="location-ok" title="Location found" aria-hidden="true">✓</span>}
+        {value.lat !== undefined && <span className="location-ok" title={t('form.found')} aria-hidden="true">✓</span>}
       </div>
       {showList && (
         <ul className="suggestions" id={`${id}-list`} role="listbox">
