@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ELD Trip Planner
 
 Plan a truck trip and get an hours-of-service compliant route plus the driver's
@@ -91,3 +92,6 @@ Two Vercel projects from this one repository:
 ## Data credits
 
 Map data © OpenStreetMap contributors. City list from GeoNames (CC BY 4.0).
+=======
+# ELD-Trip-Planner
+>>>>>>> c069a0f9731c402023edc90ba610513e0a4c290a
